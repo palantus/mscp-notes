@@ -1,0 +1,100 @@
+{
+    "name": "notes",
+    "dependencies": [
+        {
+            "name": "get",
+            "args": [
+                {
+                    "name": "key",
+                    "type": "string"
+                },
+                {
+                    "name": "defaultValue",
+                    "type": "*",
+                    "required": false,
+                    "description": ""
+                }
+            ],
+            "namespace": "",
+            "serverId": "fc0d5391-bd84-a415-43cd-a73d606a88f2"
+        },
+        {
+            "name": "set",
+            "args": [
+                {
+                    "name": "key",
+                    "type": "string"
+                },
+                {
+                    "name": "value"
+                }
+            ],
+            "namespace": "",
+            "serverId": "fc0d5391-bd84-a415-43cd-a73d606a88f2"
+        },
+        {
+            "name": "delete",
+            "args": [
+                {
+                    "name": "key",
+                    "type": "string"
+                }
+            ],
+            "namespace": "",
+            "serverId": "fc0d5391-bd84-a415-43cd-a73d606a88f2"
+        }
+    ],
+    "serve": [
+        {
+            "name": "note",
+            "description": "Get note metadata",
+            "returntype": "object",
+            "args": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "required": true,
+                    "description": "Id of the note"
+                }
+            ]
+        },
+        {
+            "name": "noteSave",
+            "description": "saves a new revision of a note",
+            "returntype": "string",
+            "args": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "required": true,
+                    "description": "Id of the note"
+                },
+                {
+                    "name": "title",
+                    "type": "string",
+                    "required": true,
+                    "description": "Title of the note"
+                },
+                {
+                    "name": "content",
+                    "type": "string",
+                    "required": true,
+                    "description": "Content of the note"
+                }
+            ]
+        },
+        {
+            "name": "noteContent",
+            "description": "Gets the content of a note",
+            "returntype": "string",
+            "args": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "required": true,
+                    "description": "Id of note content - not the note itself"
+                }
+            ]
+        }
+    ]
+}
