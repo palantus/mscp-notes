@@ -1,3 +1,5 @@
+#editorcontainer{display: none;}
+
 #edit, #saveinfo{
   position: fixed;
   right: 20px;
@@ -43,6 +45,6 @@ div.CodeMirror-cursor{
   border-left: 1px solid #eeeeee;
 }
 
-div.editor-preview a{
+div.editor-preview a, #viewer a{
     color: lightblue;
 }

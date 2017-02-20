@@ -1,3 +1,8 @@
+showdown.setOption("simpleLineBreaks", true);
+showdown.setOption("tasklists", true);
+showdown.setOption("strikethrough", true);
+
+
 $(function() {
   noteId = getUrlVar("n");
   let savedNote = localStorage[noteId] || ""
@@ -7,10 +12,13 @@ $(function() {
       let note = JSON.parse(savedNote)
       window.document.title = note.title;
       savedContent = note.content;
+
+      if(savedContent){
+        $("#viewer").html(new showdown.Converter().makeHtml(savedContent))
+      }
     } catch(err){}
   }
 
-  initEditor();
   mscp.ready.then(init)
 });
 
@@ -18,8 +26,52 @@ var simplemde = null
 var noteId = null
 var savedContent = "";
 var allowEdit = true;
+var editorInitialized = false;
+
+async function init(){
+  $("#edit").click(() => setEditMode())
+  allowEdit = (getUrlVar("edit") == "no") ? false : true;
+  if(!allowEdit)
+    $("#edit").hide();
+
+  if(noteId){
+    let note = await mscp.note(noteId)
+
+    if(note.revisions.length > 0){
+      let revision = (getUrlVar("revision") !== undefined) ? parseInt(getUrlVar("revision")) : (note.revisions.length -1);
+      if(revision < 0)
+        revision = (note.revisions.length -1) + revision;
+      if(revision < 0)
+        revision = 0;
+      if(revision > note.revisions.length -1)
+        revision = note.revisions.length -1;
+
+      window.document.title = note.revisions[revision].title;
+      savedContent = await mscp.noteContent(note.revisions[revision].contentId)
+      localStorage[noteId] = JSON.stringify({content: savedContent, title: window.document.title});
+    }
+
+    $("#viewer").html(new showdown.Converter().makeHtml(savedContent))
+  } else {
+    window.location = "/?n=" + guid()
+  }
+}
+
+function setEditMode(editMode){
+  $("#viewer").hide();
+  initEditor();
+  $("div.editor-toolbar").show();
+  $("#edit").hide();
+  $("div.CodeMirror").css("top", "50px")
+}
 
 function initEditor(){
+  if(editorInitialized)
+    return;
+
+  editorInitialized = true;
+  $("#editorcontainer").show();
+
   simplemde = new SimpleMDE({
     element: $("#editor")[0],
     spellChecker: false,
@@ -60,75 +112,12 @@ function initEditor(){
   });
 
   simplemde.value(savedContent);
-  $("#editorcontainer").hide(); //Hide before switching to preview, to prevent flickering
-
-  if(savedContent != "")
-    simplemde.togglePreview();
 
   try{
     simplemde.toggleFullScreen();
   } catch(err){}
 
-  if(savedContent != "")
-    $("#editorcontainer").show();
-
-
   $("div.CodeMirror").css("top", "0px")
-
-  $("#edit").click(() => setEditMode())
-
-  allowEdit = (getUrlVar("edit") == "no") ? false : true;
-  if(!allowEdit)
-    $("#edit").hide();
-}
-
-async function init(){
-  if(noteId){
-    let note = await mscp.note(noteId)
-
-    if(note.revisions.length > 0){
-      let revision = (getUrlVar("revision") !== undefined) ? parseInt(getUrlVar("revision")) : (note.revisions.length -1);
-      if(revision < 0)
-        revision = (note.revisions.length -1) + revision;
-      if(revision < 0)
-        revision = 0;
-      if(revision > note.revisions.length -1)
-        revision = note.revisions.length -1;
-
-      window.document.title = note.revisions[revision].title;
-      savedContent = await mscp.noteContent(note.revisions[revision].contentId)
-      localStorage[noteId] = JSON.stringify({content: savedContent, title: window.document.title});
-    }
-
-
-    if(savedContent != simplemde.value()){
-      simplemde.value(savedContent);
-      if(simplemde.isPreviewActive()){
-        simplemde.togglePreview();
-        simplemde.togglePreview();
-      }
-    }
-
-    if(savedContent != "" && !simplemde.isPreviewActive()){
-      simplemde.togglePreview();
-    }
-
-    $("#editorcontainer").show();
-
-  } else {
-    window.location = "/?n=" + guid()
-  }
-
-  if(savedContent == "")
-    setEditMode()
-}
-
-function setEditMode(editMode){
-  if(simplemde.isPreviewActive())
-    simplemde.togglePreview();
-  $("div.editor-toolbar").show();
-  $("#edit").hide();
-  $("div.CodeMirror").css("top", "50px")
 }
 
 async function save(){
