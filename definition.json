@@ -2,6 +2,39 @@
     "name": "notes",
     "dependencies": [
         {
+            "name": "set",
+            "args": [
+                {
+                    "name": "key",
+                    "type": "string"
+                },
+                {
+                    "name": "value",
+                    "title": "",
+                    "type": "*",
+                    "required": true,
+                    "description": ""
+                }
+            ],
+            "title": "",
+            "description": "",
+            "returntype": "object",
+            "namespace": ""
+        },
+        {
+            "name": "delete",
+            "args": [
+                {
+                    "name": "key",
+                    "type": "string"
+                }
+            ],
+            "title": "",
+            "description": "",
+            "returntype": "object",
+            "namespace": ""
+        },
+        {
             "name": "get",
             "args": [
                 {
@@ -12,36 +45,14 @@
                     "name": "defaultValue",
                     "type": "*",
                     "required": false,
-                    "description": ""
+                    "description": "",
+                    "title": ""
                 }
             ],
-            "namespace": "",
-            "serverId": "fc0d5391-bd84-a415-43cd-a73d606a88f2"
-        },
-        {
-            "name": "set",
-            "args": [
-                {
-                    "name": "key",
-                    "type": "string"
-                },
-                {
-                    "name": "value"
-                }
-            ],
-            "namespace": "",
-            "serverId": "fc0d5391-bd84-a415-43cd-a73d606a88f2"
-        },
-        {
-            "name": "delete",
-            "args": [
-                {
-                    "name": "key",
-                    "type": "string"
-                }
-            ],
-            "namespace": "",
-            "serverId": "fc0d5391-bd84-a415-43cd-a73d606a88f2"
+            "title": "",
+            "description": "",
+            "returntype": "object",
+            "namespace": ""
         }
     ],
     "serve": [
