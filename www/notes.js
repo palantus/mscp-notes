@@ -47,11 +47,15 @@ async function init(){
         revision = note.revisions.length -1;
 
       window.document.title = note.revisions[revision].title;
-      savedContent = await mscp.noteContent(note.revisions[revision].contentId)
-      localStorage[noteId] = JSON.stringify({content: savedContent, title: window.document.title});
+      let newContent = await mscp.noteContent(note.revisions[revision].contentId)
+      if(newContent != savedContent){
+        savedContent = newContent;
+        localStorage[noteId] = JSON.stringify({content: savedContent, title: window.document.title});
+        $("#viewer").html(new showdown.Converter().makeHtml(savedContent));
+      }
+    } else {
+      $("#viewer").html(new showdown.Converter().makeHtml("# Empty note!"));
     }
-
-    $("#viewer").html(new showdown.Converter().makeHtml(savedContent))
   } else {
     window.location = "/?n=" + guid()
   }
