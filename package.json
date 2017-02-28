@@ -5,6 +5,7 @@
 	"dependencies" : {
     "guid" : "*",
     "moment" : "*",
-    "mscp" : "*"
+    "mscp" : "*",
+    "mscp-accesstokens": "*"
   }
 }
