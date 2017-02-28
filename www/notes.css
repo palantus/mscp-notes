@@ -2,20 +2,25 @@
 
 #edit, #saveinfo{
   position: fixed;
-  right: 20px;
-  top: 10px;
   height: 30px;
   width: 80px;
   z-index: 100;
 }
 
+#edit{
+  right: 10px;
+  top: 10px;
+  display:none;
+}
+
 #saveinfo{
   width: 170px;
-  color: darkgreen;
+  color: green;
   display: none;
   text-align: right;
   font-size: larger;
-  top: 15px;
+  bottom: 5px;
+  right: 10px;
 }
 
 div.editor-toolbar{

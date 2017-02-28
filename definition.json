@@ -1,111 +1,121 @@
 {
-    "name": "notes",
-    "dependencies": [
+  "name": "notes",
+  "dependencies": [
+    {
+      "name": "set",
+      "args": [
         {
-            "name": "set",
-            "args": [
-                {
-                    "name": "key",
-                    "type": "string"
-                },
-                {
-                    "name": "value",
-                    "title": "",
-                    "type": "*",
-                    "required": true,
-                    "description": ""
-                }
-            ],
-            "title": "",
-            "description": "",
-            "returntype": "object",
-            "namespace": ""
+          "name": "key",
+          "type": "string"
         },
         {
-            "name": "delete",
-            "args": [
-                {
-                    "name": "key",
-                    "type": "string"
-                }
-            ],
-            "title": "",
-            "description": "",
-            "returntype": "object",
-            "namespace": ""
-        },
-        {
-            "name": "get",
-            "args": [
-                {
-                    "name": "key",
-                    "type": "string"
-                },
-                {
-                    "name": "defaultValue",
-                    "type": "*",
-                    "required": false,
-                    "description": "",
-                    "title": ""
-                }
-            ],
-            "title": "",
-            "description": "",
-            "returntype": "object",
-            "namespace": ""
+          "name": "value",
+          "title": "",
+          "type": "*",
+          "required": true,
+          "description": ""
         }
-    ],
-    "serve": [
+      ],
+      "title": "",
+      "description": "",
+      "returntype": "object",
+      "namespace": ""
+    },
+    {
+      "name": "delete",
+      "args": [
         {
-            "name": "note",
-            "description": "Get note metadata",
-            "returntype": "object",
-            "args": [
-                {
-                    "name": "id",
-                    "type": "string",
-                    "required": true,
-                    "description": "Id of the note"
-                }
-            ]
-        },
-        {
-            "name": "noteSave",
-            "description": "saves a new revision of a note",
-            "returntype": "string",
-            "args": [
-                {
-                    "name": "id",
-                    "type": "string",
-                    "required": true,
-                    "description": "Id of the note"
-                },
-                {
-                    "name": "title",
-                    "type": "string",
-                    "required": true,
-                    "description": "Title of the note"
-                },
-                {
-                    "name": "content",
-                    "type": "string",
-                    "required": true,
-                    "description": "Content of the note"
-                }
-            ]
-        },
-        {
-            "name": "noteContent",
-            "description": "Gets the content of a note",
-            "returntype": "string",
-            "args": [
-                {
-                    "name": "id",
-                    "type": "string",
-                    "required": true,
-                    "description": "Id of note content - not the note itself"
-                }
-            ]
+          "name": "key",
+          "type": "string"
         }
-    ]
+      ],
+      "title": "",
+      "description": "",
+      "returntype": "object",
+      "namespace": ""
+    },
+    {
+      "name": "get",
+      "args": [
+        {
+          "name": "key",
+          "type": "string"
+        },
+        {
+          "name": "defaultValue",
+          "type": "*",
+          "required": false,
+          "description": "",
+          "title": ""
+        }
+      ],
+      "title": "",
+      "description": "",
+      "returntype": "object",
+      "namespace": ""
+    }
+  ],
+  "serve": [
+    {
+      "name": "note",
+      "description": "Get note metadata",
+      "returntype": "object",
+      "args": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "Id of the note"
+        }
+      ]
+    },
+    {
+      "name": "noteSave",
+      "description": "saves a new revision of a note",
+      "returntype": "string",
+      "args": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "Id of the note"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": true,
+          "description": "Title of the note"
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "required": true,
+          "description": "Content of the note"
+        }
+      ]
+    },
+    {
+      "name": "noteContent",
+      "description": "Gets the content of a note",
+      "returntype": "string",
+      "args": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "Id of the note",
+          "title": "Id of the note"
+        },
+        {
+          "name": "revisionOffset",
+          "title": "Revision offset",
+          "type": "integer",
+          "required": false,
+          "description": "0 for current revision, -1 for last revision etc."
+        }
+      ],
+      "title": "",
+      "namespace": ""
+    }
+  ]
 }

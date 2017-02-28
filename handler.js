@@ -1,15 +1,27 @@
 "use strict"
 
-var guid = require("guid")
-var moment = require("moment")
+const guid = require("guid")
+const moment = require("moment")
+const AccessTokenManager = require("mscp-accesstokens");
 
 class Handler{
 
+  initFirst(){
+    this.global.accessManager = new AccessTokenManager({secret: this.mscp.setupHandler.setup.accessTokenSecret, alwaysFullAccess: this.mscp.setupHandler.setup.useAccessTokens !== true})
+  }
+
   async note(id){
-    return await this.mscp.get("notes_" + id, {id: id, revisions: []})
+    let writeAccess = this.global.accessManager.validateAccessReadWrite(this.request.data.accessToken, id, true)
+    let readAccess = this.global.accessManager.validateAccessReadWrite(this.request.data.accessToken, id, false)
+    let note = {id: id}
+    if(writeAccess || readAccess)
+      note = await this.mscp.get("notes_" + id, {id: id, revisions: []})
+    note.access = writeAccess ? "write" : readAccess ? "read" : "none"
+    return note
   }
 
   async noteSave(id, title, content){
+    this.validateAccessToNote(id, true)
     let note = await this.mscp.get("notes_" + id, {id: id, revisions: []})
 
     let oldContent = null
@@ -28,8 +40,19 @@ class Handler{
     return true
   }
 
-  async noteContent(id){
-    return await this.mscp.get("notes_content_" + id, "")
+  async noteContent(id, revisionOffset){
+    revisionOffset = revisionOffset || 0
+    let note = await this.note(id)
+    let revision = note.revisions[(note.revisions.length-1) + revisionOffset]
+    if(revision !== undefined){
+      return await this.mscp.get("notes_content_" + revision.contentId, "")
+    } else {
+      return "";
+    }
+  }
+
+  validateAccessToNote(id, requireWrite){
+    this.global.accessManager.validateAccessReadWriteThrow(this.request.data.accessToken, id, requireWrite)
   }
 }
 

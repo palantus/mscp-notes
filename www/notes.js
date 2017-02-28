@@ -29,25 +29,25 @@ var allowEdit = true;
 var editorInitialized = false;
 
 async function init(){
+  let accessToken = getUrlVar("accessToken")
+  if(accessToken)
+    mscp.mscp_request_include_always_parms.accessToken = accessToken;
+
   $("#edit").click(() => setEditMode())
-  allowEdit = (getUrlVar("edit") == "no") ? false : true;
-  if(!allowEdit)
-    $("#edit").hide();
 
   if(noteId){
     let note = await mscp.note(noteId)
 
+    if(note.access == "none"){
+      alert("You do not have access to this note!")
+      return;
+    }
+
     if(note.revisions.length > 0){
-      let revision = (getUrlVar("revision") !== undefined) ? parseInt(getUrlVar("revision")) : (note.revisions.length -1);
-      if(revision < 0)
-        revision = (note.revisions.length -1) + revision;
-      if(revision < 0)
-        revision = 0;
-      if(revision > note.revisions.length -1)
-        revision = note.revisions.length -1;
+      let revision = (getUrlVar("revision") !== undefined) ? parseInt(getUrlVar("revision")) : 0;
 
       window.document.title = note.revisions[revision].title;
-      let newContent = await mscp.noteContent(note.revisions[revision].contentId)
+      let newContent = await mscp.noteContent(noteId, revision)
       if(newContent != savedContent){
         savedContent = newContent;
         localStorage[noteId] = JSON.stringify({content: savedContent, title: window.document.title});
@@ -55,6 +55,10 @@ async function init(){
       }
     } else {
       $("#viewer").html(new showdown.Converter().makeHtml("# Empty note!"));
+    }
+
+    if(note.access == "write"){
+      $("#edit").show();
     }
   } else {
     window.location = "/?n=" + guid()
@@ -131,7 +135,14 @@ async function save(){
     let firstLine = savedContent.split("\n")[0];
     if(firstLine.startsWith("# ") && firstLine.length > 2)
       newTitle = firstLine.substring(1)
-    await mscp.noteSave(noteId, newTitle, savedContent)
+
+    try{
+      await mscp.noteSave(noteId, newTitle, savedContent)
+    } catch(err){
+      alert("Could not save the note. You probably don't have access.")
+      return;
+    }
+
     window.document.title = newTitle;
     savedContent[noteId] = {content: savedContent, title: window.document.title};
     $("#saveinfo").show();
