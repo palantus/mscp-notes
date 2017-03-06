@@ -88,6 +88,12 @@ function initEditor(){
     showIcons: ["code", "table"],
     toolbar: [
       {
+          name: "close",
+          action: () => close(),
+          className: "fa fa-close",
+          title: "Close",
+      },
+      {
           name: "save",
           action: () => save(),
           className: "fa fa-save",
@@ -145,8 +151,20 @@ async function save(){
 
     window.document.title = newTitle;
     savedContent[noteId] = {content: savedContent, title: window.document.title};
-    $("#saveinfo").show();
-    setTimeout(() => $("#saveinfo").hide(), 3000)
+    showInfo("Saved successfully!")
+  } else {
+    showInfo("No changes")
+  }
+}
+
+function showInfo(message){
+  $("#userinfo").html(message).show();
+  setTimeout(() => $("#userinfo").hide(), 3000)
+}
+
+async function close(){
+  if((simplemde.value() == savedContent || allowEdit === false) ||confirm("You have unsaved changes. Are you sure?")){
+    location.reload();
   }
 }
 
