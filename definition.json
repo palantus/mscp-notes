@@ -107,11 +107,11 @@
           "title": "Id of the note"
         },
         {
-          "name": "revisionOffset",
-          "title": "Revision offset",
+          "name": "revisionIdx",
+          "title": "Revision index",
           "type": "integer",
           "required": false,
-          "description": "0 for current revision, -1 for last revision etc."
+          "description": "Can be negative"
         }
       ],
       "title": "",

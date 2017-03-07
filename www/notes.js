@@ -27,6 +27,10 @@ var noteId = null
 var savedContent = "";
 var allowEdit = true;
 var editorInitialized = false;
+let revision = 0;
+let note = null
+let userInfoTimeout = null;
+let isLatestRevision = true;
 
 async function init(){
   let accessToken = getUrlVar("accessToken")
@@ -36,26 +40,17 @@ async function init(){
   $("#edit").click(() => setEditMode())
 
   if(noteId){
-    let note = await mscp.note(noteId)
+    note = await mscp.note(noteId)
 
     if(note.access == "none"){
       alert("You do not have access to this note!")
       return;
     }
 
-    if(note.revisions.length > 0){
-      let revision = (getUrlVar("revision") !== undefined) ? parseInt(getUrlVar("revision")) : 0;
+    revision = (getUrlVar("revision") !== undefined) ? parseInt(getUrlVar("revision")) : (note.revisions.length -1);
+    revision = revision < 0 ? (note.revisions.length - 1) + revision : revision;
 
-      window.document.title = note.revisions[revision].title;
-      let newContent = await mscp.noteContent(noteId, revision)
-      if(newContent != savedContent){
-        savedContent = newContent;
-        localStorage[noteId] = JSON.stringify({content: savedContent, title: window.document.title});
-        $("#viewer").html(new showdown.Converter().makeHtml(savedContent));
-      }
-    } else {
-      $("#viewer").html(new showdown.Converter().makeHtml("# Empty note!"));
-    }
+    showRevision(revision)
 
     if(note.access == "write"){
       $("#edit").show();
@@ -74,16 +69,26 @@ function setEditMode(editMode){
 }
 
 function initEditor(){
-  if(editorInitialized)
-    return;
-
-  editorInitialized = true;
   $("#editorcontainer").show();
+
+  if(simplemde){
+    simplemde.toTextArea();
+    simplemde = null;
+    $("#editor").empty()
+  }
+
+  let hideIcons = ["fullscreen", "preview"]
+  if(revision <= 0)
+    hideIcons.push("revback")
+  if(revision >= note.revisions.length - 1)
+    hideIcons.push("revforward")
+  if(!isLatestRevision)
+    hideIcons.push("save")
 
   simplemde = new SimpleMDE({
     element: $("#editor")[0],
     spellChecker: false,
-    hideIcons: ["fullscreen", "preview"],
+    hideIcons: hideIcons,
     autofocus: true,
     showIcons: ["code", "table"],
     toolbar: [
@@ -98,6 +103,19 @@ function initEditor(){
           action: () => save(),
           className: "fa fa-save",
           title: "Save",
+      },
+      {
+          name: "revback",
+          action: () => showRevision(revision - 1),
+          className: "fa fa-backward",
+          title: "Show last revision",
+      },
+      {
+          name: "revforward",
+          action: () => showRevision(revision + 1),
+          className: "fa fa-forward",
+          title: "Show next revision",
+          visible: false
       },
       "|",
       "bold",
@@ -135,7 +153,10 @@ function initEditor(){
 }
 
 async function save(){
-  if(simplemde.value() != savedContent && allowEdit === true){
+  if(revision != note.revisions.length - 1 && note.revisions.length > 0){
+    showInfo("Can only overwrite the current revision.")
+  }
+  else if(simplemde.value() != savedContent && allowEdit === true){
     savedContent = simplemde.value();
     let newTitle = "My note";
     let firstLine = savedContent.split("\n")[0];
@@ -158,13 +179,45 @@ async function save(){
 }
 
 function showInfo(message){
+  clearTimeout(userInfoTimeout)
   $("#userinfo").html(message).show();
-  setTimeout(() => $("#userinfo").hide(), 3000)
+  userInfoTimeout = setTimeout(() => $("#userinfo").hide(), 3000)
 }
 
 async function close(){
   if((simplemde.value() == savedContent || allowEdit === false) ||confirm("You have unsaved changes. Are you sure?")){
     location.reload();
+  }
+}
+
+async function showRevision(rev){
+  revision = Math.max(Math.min(rev, note.revisions.length-1), 0);
+  isLatestRevision = (revision == note.revisions.length - 1) || note.revisions.length == 0;
+
+  if(note.revisions.length > 0){
+
+    window.document.title = note.revisions[revision].title;
+    let newContent = await mscp.noteContent(noteId, revision)
+    if(newContent != savedContent){
+      savedContent = newContent;
+      if(isLatestRevision){
+        localStorage[noteId] = JSON.stringify({content: savedContent, title: window.document.title});
+      }
+      if(!simplemde){
+        $("#viewer").html(new showdown.Converter().makeHtml(savedContent));
+      }
+    }
+
+    if(simplemde || revision != note.revisions.length - 1){
+      showInfo("Showing revision " + (revision+1) + " of " + note.revisions.length)
+    }
+  } else {
+    $("#viewer").html(new showdown.Converter().makeHtml("# Empty note!"));
+  }
+
+  if(simplemde){
+    //initEditor()
+    setEditMode()
   }
 }
 

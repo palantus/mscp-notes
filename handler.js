@@ -40,10 +40,10 @@ class Handler{
     return true
   }
 
-  async noteContent(id, revisionOffset){
-    revisionOffset = revisionOffset || 0
+  async noteContent(id, revisionIdx){
     let note = await this.note(id)
-    let revision = note.revisions[(note.revisions.length-1) + revisionOffset]
+    revisionIdx = Math.min(Math.max(!isNaN(revisionIdx) ? revisionIdx : (note.revisions.length-1), 0), note.revisions.length-1)
+    let revision = note.revisions[revisionIdx]
     if(revision !== undefined){
       return await this.mscp.get("notes_content_" + revision.contentId, "")
     } else {
